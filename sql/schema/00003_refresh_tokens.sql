@@ -1,4 +1,3 @@
--- Migração de subida: cria a tabela que armazena os usuários da aplicação.
 -- +goose Up
 CREATE TABLE refresh_tokens (
     token VARCHAR(255) PRIMARY KEY,
@@ -9,9 +8,8 @@ CREATE TABLE refresh_tokens (
     revoked_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
 );
 
--- Índice para acelerar a busca de tokens ativos por usuário
-CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id)
+-- Índice para acelerar a busca de tokens por usuário
+CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
 
--- Migração de reversão: permite desfazer a criação da tabela.
 -- +goose Down
 DROP TABLE IF EXISTS refresh_tokens;
