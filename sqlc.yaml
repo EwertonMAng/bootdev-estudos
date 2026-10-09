@@ -1,0 +1,10 @@
+# Configura o sqlc, que transforma consultas SQL em métodos Go tipados.
+version: "2"
+sql:
+  - schema: "sql/schema"
+    queries: "sql/queries"
+    engine: "postgresql"
+    gen:
+      go:
+        # Os arquivos gerados são gravados aqui; edite as consultas e o schema, não os gerados.
+        out: "internal/database"

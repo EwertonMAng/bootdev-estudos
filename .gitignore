@@ -1,0 +1,2 @@
+# Arquivo local com configurações e credenciais; não deve ser versionado.
+.env
