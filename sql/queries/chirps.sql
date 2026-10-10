@@ -9,9 +9,9 @@ VALUES (
 )
 RETURNING *;
 
--- Remove todos os usuários; :exec indica que nenhum resultado será retornado.
--- name: DeleteChirps :exec
-DELETE FROM chirps;
+-- name: DeleteChirpID :exec
+DELETE FROM chirps
+WHERE id = $1;
 
 -- name: GetChirpsAsc :many
 SELECT * FROM chirps
@@ -19,4 +19,4 @@ ORDER BY created_at ASC;
 
 -- name: GetChirpByID :one 
 SELECT * FROM chirps
-WHERE id = $1; 
+WHERE id = $1;
