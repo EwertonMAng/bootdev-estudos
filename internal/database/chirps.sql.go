@@ -32,6 +32,7 @@ type CreateChirpsParams struct {
 	UserID    uuid.UUID
 }
 
+// CreateChirps inserts a fresh chirp into the database and returns the stored row.
 func (q *Queries) CreateChirps(ctx context.Context, arg CreateChirpsParams) (Chirp, error) {
 	row := q.db.QueryRowContext(ctx, createChirps,
 		arg.ID,
@@ -56,6 +57,7 @@ DELETE FROM chirps
 WHERE id = $1
 `
 
+// DeleteChirpID removes a chirp by its UUID identifier.
 func (q *Queries) DeleteChirpID(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteChirpID, id)
 	return err
@@ -66,6 +68,7 @@ SELECT id, created_at, updated_at, body, user_id FROM chirps
 WHERE id = $1
 `
 
+// GetChirpByID loads a single chirp based on its persistent identifier.
 func (q *Queries) GetChirpByID(ctx context.Context, id uuid.UUID) (Chirp, error) {
 	row := q.db.QueryRowContext(ctx, getChirpByID, id)
 	var i Chirp
@@ -84,8 +87,45 @@ SELECT id, created_at, updated_at, body, user_id FROM chirps
 ORDER BY created_at ASC
 `
 
+// GetChirpsAsc retrieves all chirps sorted from oldest to newest.
 func (q *Queries) GetChirpsAsc(ctx context.Context) ([]Chirp, error) {
 	rows, err := q.db.QueryContext(ctx, getChirpsAsc)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Chirp
+	for rows.Next() {
+		var i Chirp
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Body,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getChirpsByAuthor = `-- name: GetChirpsByAuthor :many
+SELECT id, created_at, updated_at, body, user_id FROM chirps
+WHERE user_id = $1
+ORDER BY created_at ASC
+`
+
+// GetChirpsByAuthor loads all chirps created by one specific author.
+func (q *Queries) GetChirpsByAuthor(ctx context.Context, userID uuid.UUID) ([]Chirp, error) {
+	rows, err := q.db.QueryContext(ctx, getChirpsByAuthor, userID)
 	if err != nil {
 		return nil, err
 	}

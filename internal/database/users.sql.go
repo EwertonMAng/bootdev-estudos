@@ -34,8 +34,7 @@ type CreateUserParams struct {
 	IsChirpyRed    bool
 }
 
-// Cria um usuário usando os quatro parâmetros recebidos pelo código Go.
-// :one informa ao sqlc que a consulta retorna exatamente uma linha.
+// CreateUser inserts a new user and returns the stored row.
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
 		arg.ID,
@@ -63,6 +62,7 @@ WHERE id = $1
 RETURNING id, created_at, updated_at, email, hashed_password, is_chirpy_red
 `
 
+// DeleteUserID removes a user by ID and returns the deleted row.
 func (q *Queries) DeleteUserID(ctx context.Context, id uuid.UUID) (User, error) {
 	row := q.db.QueryRowContext(ctx, deleteUserID, id)
 	var i User
@@ -81,7 +81,7 @@ const deleteUsers = `-- name: DeleteUsers :exec
 DELETE FROM users
 `
 
-// Remove todos os usuários; :exec indica que nenhum resultado será retornado.
+// DeleteUsers removes all users from the table.
 func (q *Queries) DeleteUsers(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, deleteUsers)
 	return err
@@ -92,6 +92,7 @@ SELECT id, created_at, updated_at, email, hashed_password, is_chirpy_red FROM us
 WHERE email = $1
 `
 
+// GetUserByEmail looks up a user by email address.
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
 	var i User
@@ -111,6 +112,7 @@ SELECT id, created_at, updated_at, email, hashed_password, is_chirpy_red FROM us
 WHERE id = $1
 `
 
+// GetUserByID reads a user record by primary key.
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByID, id)
 	var i User
@@ -139,6 +141,7 @@ type UpdateUserParams struct {
 	UpdatedAt      time.Time
 }
 
+// UpdateUser modifies the user's email, password hash, and timestamp.
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, updateUser,
 		arg.ID,
@@ -170,6 +173,7 @@ type UpdateUserToChirpyRedParams struct {
 	UpdatedAt time.Time
 }
 
+// UpdateUserToChirpyRed upgrades the user to the Chirpy Red subscription.
 func (q *Queries) UpdateUserToChirpyRed(ctx context.Context, arg UpdateUserToChirpyRedParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, updateUserToChirpyRed, arg.ID, arg.UpdatedAt)
 	var i User

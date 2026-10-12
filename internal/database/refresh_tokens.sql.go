@@ -15,11 +15,11 @@ import (
 const createRefreshToken = `-- name: CreateRefreshToken :one
 INSERT INTO refresh_tokens (token, created_at, updated_at, user_id, expires_at, revoked_at)
 VALUES (
-    $1, 
-    NOW(), 
-    NOW(), 
-    $2, 
-    $3, 
+    $1,
+    NOW(),
+    NOW(),
+    $2,
+    $3,
     NULL
 )
 RETURNING token, created_at, updated_at, user_id, expires_at, revoked_at
@@ -31,6 +31,7 @@ type CreateRefreshTokenParams struct {
 	ExpiresAt time.Time
 }
 
+// CreateRefreshToken inserts a refresh token for the user and returns the stored row.
 func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (RefreshToken, error) {
 	row := q.db.QueryRowContext(ctx, createRefreshToken, arg.Token, arg.UserID, arg.ExpiresAt)
 	var i RefreshToken
@@ -53,6 +54,7 @@ WHERE refresh_tokens.token = $1
   AND refresh_tokens.expires_at > NOW()
 `
 
+// GetUserFromRefreshToken resolves the user associated with a still-valid refresh token.
 func (q *Queries) GetUserFromRefreshToken(ctx context.Context, token string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserFromRefreshToken, token)
 	var i User
@@ -73,6 +75,7 @@ SET revoked_at = NOW(), updated_at = NOW()
 WHERE token = $1
 `
 
+// RevokeRefreshToken invalidates a refresh token by marking it as revoked.
 func (q *Queries) RevokeRefreshToken(ctx context.Context, token string) error {
 	_, err := q.db.ExecContext(ctx, revokeRefreshToken, token)
 	return err

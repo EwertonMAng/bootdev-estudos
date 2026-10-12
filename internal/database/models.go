@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Chirp represents the persisted chirp row in the database.
 type Chirp struct {
 	ID        uuid.UUID
 	CreatedAt time.Time
@@ -19,6 +20,7 @@ type Chirp struct {
 	UserID    uuid.UUID
 }
 
+// RefreshToken stores the metadata for a user refresh token and its expiration state.
 type RefreshToken struct {
 	Token     string
 	CreatedAt time.Time
@@ -28,6 +30,7 @@ type RefreshToken struct {
 	RevokedAt sql.NullTime
 }
 
+// User represents one application user, including the hashed password and subscription flag.
 type User struct {
 	ID             uuid.UUID
 	CreatedAt      time.Time

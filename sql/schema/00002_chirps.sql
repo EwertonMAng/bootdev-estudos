@@ -1,4 +1,4 @@
--- Migração de subida: cria a tabela que armazena os usuários da aplicação.
+-- Create the chirps table that stores the application posts written by users.
 -- +goose Up
 CREATE TABLE chirps (
     id UUID PRIMARY KEY,
@@ -8,6 +8,6 @@ CREATE TABLE chirps (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Migração de reversão: permite desfazer a criação da tabela.
+-- Roll back the migration by deleting the chirps table.
 -- +goose Down
 DROP TABLE chirps;
